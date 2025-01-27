@@ -76,3 +76,55 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 Update EC2 security-group settings for your instance to allow HTTP traffic to port 80.
 
 Now when you visit your public IP of the instance, you should be able to access your API.
+
+# Automate server start and stop using instance states
+
+By using these commands your FastAPI application will turn on automatically whenever the instance is started and stops whenever the instance is stopped - Automation 101
+
+Create a service
+
+```bash
+sudo nano /etc/systemd/system/fastapi.service
+```
+
+Add these configurations: 
+
+```bash
+[Unit]
+Description=FastAPI Application
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/v1-fast-api
+ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+Reload the systemd daemon
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Start the service immediately
+
+```bash
+sudo systemctl start fastapi.service
+```
+
+Enable the service to start on boot
+
+```bash
+sudo systemctl enable fastapi.service
+```
+
+Check the status
+
+```bash
+sudo systemctl status fastapi.service
+```
